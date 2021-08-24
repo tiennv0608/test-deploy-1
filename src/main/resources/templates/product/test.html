@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table id="list">
+
+</table>
+<button onclick="showList()" value="Hello">Hello</button>
+<script>
+    function showList() {
+        $.ajax({
+            type: "GET",
+            //tên API
+            url: "/list",
+            //xử lý khi thành công
+            success: function (data) {
+                console.log("hello")
+                // hien thi danh sach o day
+                let content = '    <tr>\n' +
+                    '        <td>ID</td>\n' +
+                    '        <td>Name</td>\n' +
+                    '        <td>Price</td>\n' +
+                    '        <td>Description</td>\n' +
+                    '        <td>Manufacture</td>\n' +
+                    '        <td>Edit</td>\n' +
+                    '        <td>Delete</td>\n' +
+                    '    </tr>';
+                for (let i = 0; i < data.length; i++) {
+                    content += getProduct(data[i]);
+                }
+                document.getElementById('list').innerHTML = content;
+            }
+        })
+    }
+
+    function getProduct(product) {
+        return `<tr><td>${product.id}</td><td>${product.name}</td><td>${product.price}</td><td>${product.description}</td><td>${product.manufacture}</td>` +
+            `<td><input type="button" value="Edit"/></td>` +
+            `<td><input type="button" value="Delete"/></td></tr>`;
+    }
+</script>
+</body>
+</html>

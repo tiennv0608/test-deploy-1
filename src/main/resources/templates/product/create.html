@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create product</title>
+</head>
+<body>
+<h1>Create product</h1>
+<a href="/products">Back to product list</a>
+<br>
+<block th:if="${message}">
+    <span th:text="${message}"></span>
+</block>
+<form action="/products/create" name="product" method="post">
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" name="name" placeholder="Name"></td>
+        </tr>
+        <tr>
+            <td>Price:</td>
+            <td><input type="number" name="price" placeholder="Price"></td>
+        </tr>
+        <tr>
+            <td>Description:</td>
+            <td><input type="text" name="description" placeholder="Description"></td>
+        </tr>
+        <tr>
+            <td>Manufacture:</td>
+            <td><input type="text" name="manufacture" placeholder="Manufacture"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Create"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
