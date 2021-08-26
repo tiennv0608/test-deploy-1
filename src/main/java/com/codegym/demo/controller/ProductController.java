@@ -3,86 +3,63 @@ package com.codegym.demo.controller;
 import com.codegym.demo.model.Product;
 import com.codegym.demo.service.product.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/products")
+@CrossOrigin("*")
 public class ProductController {
     @Autowired
     private IProductService productService;
 
-    @GetMapping("/create")
-    public ModelAndView showFormCreate() {
-        return new ModelAndView("/product/create");
-    }
-
-    @PostMapping("/create")
-    public ModelAndView saveProduct(Product product) {
-        productService.save(product);
-        ModelAndView modelAndView = new ModelAndView("/product/create");
-        modelAndView.addObject("message", "New product was created");
-        return modelAndView;
-    }
-
     @GetMapping
-    public ModelAndView showList() {
-        ModelAndView modelAndView = new ModelAndView("product/list");
-        Iterable<Product> products = productService.findAll();
-        modelAndView.addObject("products", products);
-        return modelAndView;
+    public ResponseEntity<Iterable<Product>> findAll() {
+        List<Product> products = (List<Product>) productService.findAll();
+        if (products.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-    @GetMapping("/edit/{id}")
-    public ModelAndView showFormEdit(@PathVariable Long id) {
+    @PostMapping
+    public ResponseEntity<Void> create(@RequestBody Product todo) {
+        productService.save(todo);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getOne(@PathVariable Long id) {
         Optional<Product> product = productService.findById(id);
         if (!product.isPresent()) {
-            return new ModelAndView("/error.404");
-        } else {
-            ModelAndView modelAndView = new ModelAndView("/product/edit");
-            modelAndView.addObject("product", product.get());
-            return modelAndView;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(product.get(), HttpStatus.OK);
     }
 
-    @PostMapping("/edit")
-    public ModelAndView update(@ModelAttribute("product") Product product) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody Product product) {
+        Optional<Product> productOptional = productService.findById(id);
+        if (!productOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        product.setId(id);
         productService.save(product);
-        ModelAndView modelAndView = new ModelAndView("/product/edit");
-        modelAndView.addObject("message", "Product was updated");
-        return modelAndView;
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/view/{id}")
-    public ModelAndView showDetails(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         Optional<Product> product = productService.findById(id);
         if (!product.isPresent()) {
-            return new ModelAndView("/error.404");
-        } else {
-            ModelAndView modelAndView = new ModelAndView("/product/view");
-            modelAndView.addObject("product", product.get());
-            return modelAndView;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @GetMapping("/delete/{id}")
-    public ModelAndView showFormDelete(@PathVariable Long id) {
-        Optional<Product> product = productService.findById(id);
-        if (!product.isPresent()) {
-            return new ModelAndView("/error.404");
-        } else {
-            ModelAndView modelAndView = new ModelAndView("/product/delete");
-            modelAndView.addObject("product", product.get());
-            return modelAndView;
-        }
-    }
-
-    @PostMapping("/delete/{id}")
-    public ModelAndView delete(@PathVariable Long id) {
         productService.remove(id);
-        return new ModelAndView("redirect:/products");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
